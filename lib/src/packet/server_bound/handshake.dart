@@ -28,7 +28,7 @@ class HandshakePacket extends ServerBoundPacket {
   HandshakePacket(this.address, [
     this.port = 25565,
     this.nextState = NextState.status,
-    this.protocolVersion = 757
+    this.protocolVersion = ProtocolVersion.oneEighteenOne,
   ]);
 
   @override
