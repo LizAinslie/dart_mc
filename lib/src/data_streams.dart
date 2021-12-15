@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dart_mc/src/utils.dart';
@@ -76,7 +75,7 @@ class PacketBufferBuilder {
             byteOffset = writeVarIntToByteData(bytes, byteOffset, packetPart.data);
             break;
           } else {
-            throw 'bitch';
+            throw 'Data should be of type int if encoding as VarInt. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
         case PacketPartType.string: {
@@ -88,13 +87,13 @@ class PacketBufferBuilder {
             byteOffset = writeVarIntToByteData(bytes, byteOffset, stringLength);
 
             // write the string
-            for (int piss in value.codeUnits) {
-              bytes.setUint8(byteOffset, piss);
+            for (int codePoint in value.codeUnits) {
+              bytes.setUint8(byteOffset, codePoint);
               byteOffset += 1;
             }
             break;
           } else {
-            throw 'bitch';
+            throw 'Data should be of type string if encoding as string. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
         case PacketPartType.short: {
@@ -105,7 +104,7 @@ class PacketBufferBuilder {
 
             break;
           } else {
-            throw 'bitch';
+            throw 'Data should be of type int if encoding as short. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
       }

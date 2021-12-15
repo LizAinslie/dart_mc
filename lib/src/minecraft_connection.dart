@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dart_mc/src/packet/server_bound_packet.dart';
 
-typedef SocketHandler = Function(Socket socket, Uint8List data);
+typedef SocketHandler = Function(Socket socket, Uint8List message);
 
 class MinecraftConnection {
   Socket? _socket;
@@ -16,14 +16,15 @@ class MinecraftConnection {
   Future<void> openConnection() async {
     _socket = await Socket.connect(serverAddress, serverPort);
 
-    if (_socket == null) {
-      print('PANIK! NO SOCKET?????');
-      throw 'bitch';
+    if (_socket != null) {
+      _socket!.listen((data) {
+        for (SocketHandler handler in handlers) {
+          handler(_socket!, data);
+        }
+      });
+    } else {
+      throw 'Cannot continue with null socket.';
     }
-
-    _socket!.listen((data) {
-      print(String.fromCharCodes(data));
-    });
   }
 
   addHandler(SocketHandler handler) {
@@ -32,7 +33,7 @@ class MinecraftConnection {
 
   Future<void> sendPacket(ServerBoundPacket packet) async {
     if (_socket == null) {
-      throw 'The socket doesn\'t exist yet you bitch';
+      throw 'Cannot send packets to null socket';
     }
 
     packet.writeTo(_socket!);
