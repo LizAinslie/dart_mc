@@ -23,7 +23,7 @@ class MinecraftConnection {
         }
       });
     } else {
-      throw 'Cannot continue with null socket.';
+      throw 'Connection failed: Socket is null.';
     }
   }
 
