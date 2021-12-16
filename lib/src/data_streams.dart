@@ -18,16 +18,16 @@ class PacketBufferBuilder {
 
   PacketBufferBuilder();
 
-  addVarInt(int value) {
-    packetParts.add(PacketPart(PacketPartType.varInt, value));
+  addVarInt(int varIntValue) {
+    packetParts.add(PacketPart(PacketPartType.varInt, varIntValue));
   }
 
-  addString(String value) {
-    packetParts.add(PacketPart(PacketPartType.string, value));
+  addString(String stringValue) {
+    packetParts.add(PacketPart(PacketPartType.string, stringValue));
   }
 
-  addShort(int value) {
-    packetParts.add(PacketPart(PacketPartType.short, value));
+  addShort(int shortValue) {
+    packetParts.add(PacketPart(PacketPartType.short, shortValue));
   }
 
   addBoolean(bool booleanValue) {
@@ -48,7 +48,7 @@ class PacketBufferBuilder {
             length += calculateVarIntLength(packetPart.data);
             break;
           } else {
-            throw 'bitch';
+            throw 'Data should be of type int if encoding as varint. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
         case PacketPartType.string: {
@@ -59,7 +59,7 @@ class PacketBufferBuilder {
             length += stringLength + varIntLength;
             break;
           } else {
-            throw 'bitch';
+            throw 'Data should be of type String if encoding as string. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
         case PacketPartType.short: {
@@ -88,31 +88,31 @@ class PacketBufferBuilder {
             byteOffset = writeVarIntToByteData(bytes, byteOffset, packetPart.data);
             break;
           } else {
-            throw 'Data should be of type int if encoding as VarInt. Found: ${packetPart.data.runtimeType.toString()}';
+            throw 'Data should be of type int if encoding as varint. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
         case PacketPartType.string: {
           if (packetPart.data is String) {
-            String value = packetPart.data as String;
-            int stringLength = value.length;
+            String stringValue = packetPart.data as String;
+            int stringLength = stringValue.length;
 
             // write the length as a VarInt
             byteOffset = writeVarIntToByteData(bytes, byteOffset, stringLength);
 
             // write the string
-            for (int codePoint in value.codeUnits) {
+            for (int codePoint in stringValue.codeUnits) {
               bytes.setUint8(byteOffset, codePoint);
               byteOffset += 1;
             }
             break;
           } else {
-            throw 'Data should be of type string if encoding as string. Found: ${packetPart.data.runtimeType.toString()}';
+            throw 'Data should be of type String if encoding as string. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
         case PacketPartType.short: {
           if (packetPart.data is int) {
-            int value = packetPart.data as int;
-            bytes.setInt16(byteOffset, value, Endian.big);
+            int shortValue = packetPart.data as int;
+            bytes.setInt16(byteOffset, shortValue, Endian.big);
             byteOffset += 2;
 
             break;
