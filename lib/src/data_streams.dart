@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:dart_mc/src/utils.dart';
 
 enum PacketPartType {
-  string, varInt, short
+  string, varInt, short, boolean, unsignedByte
 }
 
 class PacketPart<T> {
@@ -28,6 +28,14 @@ class PacketBufferBuilder {
 
   addShort(int value) {
     packetParts.add(PacketPart(PacketPartType.short, value));
+  }
+
+  addBoolean(bool booleanValue) {
+    packetParts.add(PacketPart(PacketPartType.boolean, booleanValue));
+  }
+
+  addUnsignedByte(int byteValue) {
+    packetParts.add(PacketPart(PacketPartType.unsignedByte, byteValue));
   }
 
   Uint8List build() {
@@ -56,6 +64,11 @@ class PacketBufferBuilder {
         }
         case PacketPartType.short: {
           length += 2;
+          break;
+        }
+        case PacketPartType.unsignedByte:
+        case PacketPartType.boolean: {
+          length += 1;
           break;
         }
       }
@@ -105,6 +118,28 @@ class PacketBufferBuilder {
             break;
           } else {
             throw 'Data should be of type int if encoding as short. Found: ${packetPart.data.runtimeType.toString()}';
+          }
+        }
+        case PacketPartType.boolean: {
+          if (packetPart.data is bool) {
+            bool booleanValue = packetPart.data as bool;
+            bytes.setInt8(byteOffset, booleanValue ? 0x01 : 0x00);
+            byteOffset += 1;
+
+            break;
+          } else {
+            throw 'Data should be of type bool if encoding as boolean. Found: ${packetPart.data.runtimeType.toString()}';
+          }
+        }
+        case PacketPartType.unsignedByte: {
+          if (packetPart.data is int) {
+            int byteValue = packetPart.data as int;
+            bytes.setUint8(byteOffset, byteValue);
+            byteOffset += 1;
+
+            break;
+          } else {
+            throw 'Data should be of type int if encoding as unsigned byte. Found: ${packetPart.data.runtimeType.toString()}';
           }
         }
       }
